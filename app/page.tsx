@@ -1,69 +1,324 @@
-import Image from "next/image";
+import {
+  ArrowRight,
+  BrainCircuit,
+  BriefcaseBusiness,
+  ChartNoAxesCombined,
+  CheckCircle2,
+  GraduationCap,
+  Route,
+  Sparkles,
+  Target,
+  Users,
+} from "lucide-react";
+
+const features = [
+  {
+    icon: BrainCircuit,
+    title: "AI Career Assistant",
+    text: "Context-aware guidance based on each learner's education, skills, projects and career goals.",
+  },
+  {
+    icon: Target,
+    title: "Skill Gap Intelligence",
+    text: "Discover strong, developing and missing skills for the learner's target career role.",
+  },
+  {
+    icon: Route,
+    title: "Personalized Roadmaps",
+    text: "Turn skill gaps into a practical step-by-step learning, project and career preparation plan.",
+  },
+  {
+    icon: BriefcaseBusiness,
+    title: "Opportunity Matching",
+    text: "Recommend relevant projects and internships with transparent match reasons.",
+  },
+];
+
+const roadmap = [
+  { label: "Python", status: "Strong", state: "complete" },
+  { label: "SQL", status: "Strong", state: "complete" },
+  { label: "Excel", status: "Developing", state: "progress" },
+  { label: "Power BI", status: "Missing", state: "missing" },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main>
+      <section className="hero">
+        <div className="grid-glow" />
+        <div className="orb orb-one" />
+        <div className="orb orb-two" />
+
+        <nav className="navbar container">
+          <a className="brand" href="#">
+            <span className="brand-mark">
+              <GraduationCap size={22} />
+            </span>
+            <span>
+              Career<span className="brand-accent">Intel</span>
+            </span>
+          </a>
+
+          <div className="nav-links">
+            <a href="#features">Platform</a>
+            <a href="#intelligence">Intelligence</a>
+            <a href="#roadmap">Roadmap</a>
+            <a href="#about">About</a>
+          </div>
+
+          <div className="nav-actions">
+            <button className="text-btn">Sign in</button>
+            <button className="nav-cta">
+              Get Started
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </nav>
+
+        <div className="hero-content container">
+          <div className="hero-copy">
+            <div className="eyebrow">
+              <Sparkles size={15} />
+              AI-POWERED LEARNER INTELLIGENCE
+            </div>
+
+            <h1>
+              Turn every learner into a
+              <span> career-ready candidate.</span>
+            </h1>
+
+            <p className="hero-description">
+              One intelligent platform that understands each learner, detects
+              skill gaps, builds personalized career roadmaps and connects
+              learning progress with real opportunities.
+            </p>
+
+            <div className="hero-actions">
+              <button className="primary-btn">
+                Build My Career Roadmap
+                <ArrowRight size={18} />
+              </button>
+              <button className="secondary-btn">
+                <BrainCircuit size={18} />
+                Explore Intelligence
+              </button>
+            </div>
+
+            <div className="hero-proof">
+              <div className="proof-item">
+                <CheckCircle2 size={17} />
+                Personalized AI
+              </div>
+              <div className="proof-item">
+                <CheckCircle2 size={17} />
+                Skill Gap Analysis
+              </div>
+              <div className="proof-item">
+                <CheckCircle2 size={17} />
+                Career Readiness
+              </div>
+            </div>
+          </div>
+
+          <div className="intelligence-shell" id="intelligence">
+            <div className="floating-chip chip-one">
+              <Sparkles size={15} />
+              AI analyzing profile
+            </div>
+
+            <div className="floating-chip chip-two">
+              <BriefcaseBusiness size={15} />
+              86% opportunity match
+            </div>
+
+            <div className="dashboard-card">
+              <div className="dashboard-top">
+                <div>
+                  <p className="mini-label">CAREER INTELLIGENCE</p>
+                  <h3>Data Analyst</h3>
+                </div>
+                <div className="live-pill">
+                  <span />
+                  LIVE
+                </div>
+              </div>
+
+              <div className="readiness-block">
+                <div className="score-ring">
+                  <div className="score-ring-inner">
+                    <strong>68%</strong>
+                    <span>Ready</span>
+                  </div>
+                </div>
+
+                <div className="readiness-copy">
+                  <span>Career readiness</span>
+                  <strong>You're making strong progress.</strong>
+                  <p>Complete two priority skills to reach the next level.</p>
+                </div>
+              </div>
+
+              <div className="skill-list">
+                {roadmap.map((skill) => (
+                  <div className="skill-row" key={skill.label}>
+                    <div className="skill-left">
+                      <span className={`skill-dot ${skill.state}`} />
+                      <span>{skill.label}</span>
+                    </div>
+                    <span className={`skill-status ${skill.state}`}>
+                      {skill.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="ai-insight">
+                <div className="insight-icon">
+                  <BrainCircuit size={18} />
+                </div>
+                <div>
+                  <span>AI NEXT BEST ACTION</span>
+                  <p>
+                    Start Power BI fundamentals and build one analytics
+                    dashboard project.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="metrics container">
+          <div className="metric">
+            <strong>360°</strong>
+            <span>Learner Intelligence</span>
+          </div>
+          <div className="metric-divider" />
+          <div className="metric">
+            <strong>AI</strong>
+            <span>Personalized Guidance</span>
+          </div>
+          <div className="metric-divider" />
+          <div className="metric">
+            <strong>Live</strong>
+            <span>Progress Tracking</span>
+          </div>
+          <div className="metric-divider" />
+          <div className="metric">
+            <strong>1?1</strong>
+            <span>Career Roadmaps</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="features-section" id="features">
+        <div className="section-heading container">
+          <div>
+            <p className="section-kicker">INTELLIGENCE THAT TAKES ACTION</p>
+            <h2>
+              More than advice.
+              <span> A complete career intelligence system.</span>
+            </h2>
+          </div>
+
+          <p>
+            Every module works together to understand the learner, recommend
+            the right next action and measure meaningful progress.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="feature-grid container">
+          {features.map(({ icon: Icon, title, text }, index) => (
+            <article className="feature-card" key={title}>
+              <div className="feature-number">0{index + 1}</div>
+              <div className="feature-icon">
+                <Icon size={21} />
+              </div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+              <button>
+                Explore module
+                <ArrowRight size={15} />
+              </button>
+            </article>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="career-flow-section" id="roadmap">
+        <div className="career-flow container">
+          <div className="flow-copy">
+            <p className="section-kicker">ONE CONNECTED JOURNEY</p>
+            <h2>
+              From learner profile
+              <span> to career outcome.</span>
+            </h2>
+            <p>
+              Intelligence follows the learner continuously instead of giving
+              the same static guidance to everyone.
+            </p>
+
+            <div className="flow-points">
+              <div>
+                <Users size={18} />
+                Learner Profile
+              </div>
+              <div>
+                <BrainCircuit size={18} />
+                AI Analysis
+              </div>
+              <div>
+                <Target size={18} />
+                Skill Gap
+              </div>
+              <div>
+                <Route size={18} />
+                Personalized Roadmap
+              </div>
+              <div>
+                <ChartNoAxesCombined size={18} />
+                Progress Intelligence
+              </div>
+            </div>
+          </div>
+
+          <div className="flow-panel">
+            <span className="panel-caption">LIVE INTELLIGENCE FLOW</span>
+
+            <div className="flow-line">
+              <div className="flow-node active">01</div>
+              <div>
+                <span>Profile understood</span>
+                <strong>Python + SQL + Data interest</strong>
+              </div>
+            </div>
+
+            <div className="flow-line">
+              <div className="flow-node">02</div>
+              <div>
+                <span>Gap detected</span>
+                <strong>Power BI + Statistics</strong>
+              </div>
+            </div>
+
+            <div className="flow-line">
+              <div className="flow-node">03</div>
+              <div>
+                <span>Action generated</span>
+                <strong>6-week personalized roadmap</strong>
+              </div>
+            </div>
+
+            <div className="flow-line">
+              <div className="flow-node">04</div>
+              <div>
+                <span>Outcome improved</span>
+                <strong>68% ? 84% job readiness</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
