@@ -152,9 +152,28 @@ export default function RoadmapPage() {
 
   if (loading) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#050816] text-white">
+      <main className="overflow-hidden relative grid min-h-screen place-items-center bg-[#050816] text-white">
+      <video
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-[0.52]"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/videos/roadmap-journey-background.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.68),rgba(5,8,22,0.84)),radial-gradient(circle_at_top_right,rgba(76,29,149,0.14),transparent_42%)]"
+      />
         <div className="text-center">
-          <Loader2 className="mx-auto animate-spin text-cyan-300" />
+          <Loader2 className="relative z-10 mx-auto animate-spin text-cyan-300" />
 
           <p className="mt-4 text-sm text-slate-400">
             CareerIntel is generating your roadmap...
@@ -165,8 +184,27 @@ export default function RoadmapPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] px-4 py-10 text-white">
-      <div className="mx-auto max-w-6xl">
+    <main className="overflow-hidden relative min-h-screen bg-[#050816] px-4 py-10 text-white">
+      <video
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-[0.52]"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/videos/roadmap-journey-background.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.68),rgba(5,8,22,0.84)),radial-gradient(circle_at_top_right,rgba(76,29,149,0.14),transparent_42%)]"
+      />
+      <div className="relative z-10 mx-auto max-w-6xl">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"

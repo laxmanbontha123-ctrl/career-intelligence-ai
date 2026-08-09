@@ -8,23 +8,24 @@ datasource db {
 }
 
 model User {
-  id               Int               @id @default(autoincrement())
-  authUid          String            @unique
-  name             String?
-  email            String?           @unique
-  phone            String?           @unique
-  role             String            @default("student")
-  authMethod       String?
-  profileCompleted Boolean           @default(false)
-  targetRole       String?
-  readinessScore   Int               @default(0)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  learnerProfile   LearnerProfile?
-  userSkills       UserSkill[]
-  roadmapProgress  RoadmapProgress[]
-  resumeAnalyses   ResumeAnalysis[]
-  mentorMessages   MentorMessage[]
+  id                Int                @id @default(autoincrement())
+  authUid           String             @unique
+  name              String?
+  email             String?            @unique
+  phone             String?            @unique
+  role              String             @default("student")
+  authMethod        String?
+  profileCompleted  Boolean            @default(false)
+  targetRole        String?
+  readinessScore    Int                @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  learnerProfile    LearnerProfile?
+  userSkills        UserSkill[]
+  roadmapProgress   RoadmapProgress[]
+  resumeAnalyses    ResumeAnalysis[]
+  mentorMessages    MentorMessage[]
+  interviewAttempts InterviewAttempt[]
 }
 
 model EmailOtp {
@@ -113,6 +114,24 @@ model MentorMessage {
   role      String
   content   String   @db.LongText
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model InterviewAttempt {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  targetRole   String
+  difficulty   String
+  question     String   @db.Text
+  answer       String   @db.LongText
+  score        Int
+  strengths    String   @db.Text
+  improvements String   @db.Text
+  idealAnswer  String   @db.LongText
+  createdAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

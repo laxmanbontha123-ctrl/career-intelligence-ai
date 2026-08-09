@@ -104,17 +104,34 @@ export async function POST(request: Request) {
       user.targetRole || ""
     );
 
-    const skillContext = requiredSkills
+    const skillAnalysis = requiredSkills
       .map((required) => {
         const saved = user.userSkills.find(
           (skill) => skill.name === required.name
         );
 
-        return `${required.name}: current ${
-          saved?.level || 0
-        }/5, required ${required.requiredLevel}/5`;
+        const currentLevel = saved?.level || 0;
+
+        return {
+          name: required.name,
+          currentLevel,
+          requiredLevel: required.requiredLevel,
+          gap: Math.max(
+            required.requiredLevel - currentLevel,
+            0
+          ),
+        };
       })
+      .sort((a, b) => b.gap - a.gap);
+
+    const skillContext = skillAnalysis
+      .map(
+        (skill) =>
+          `${skill.name}: current ${skill.currentLevel}/5, required ${skill.requiredLevel}/5, gap ${skill.gap}`
+      )
       .join("\n");
+
+    const biggestGap = skillAnalysis[0];
 
     const latestResume = user.resumeAnalyses[0];
 
@@ -152,10 +169,18 @@ Latest resume ATS score: ${latestResume?.atsScore ?? "Not analyzed"}
 SKILL PROFILE:
 ${skillContext}
 
+HIGHEST NUMERICAL SKILL GAP:
+${biggestGap?.name || "No active gap"} with a gap of ${biggestGap?.gap || 0} levels.
+
 RULES:
 - Personalize every answer using the supplied student context.
 - Give practical, actionable and realistic guidance.
 - Prefer concise step-by-step answers.
+- Keep normal answers below 250 words unless the student explicitly requests a detailed explanation.
+- Avoid repeating greetings or the complete student profile in every response.
+- Use short headings and a maximum of 5 main action points.
+- When the student asks for the biggest skill gap, always use the HIGHEST NUMERICAL SKILL GAP shown above.
+- Never stop in the middle of a sentence, list item or answer.
 - Use clear Indian English.
 - Never invent live job openings, salaries, certifications or deadlines.
 - If current information is required, tell the student to verify it.
@@ -201,7 +226,7 @@ RULES:
           generationConfig: {
             temperature: 0.55,
             topP: 0.9,
-            maxOutputTokens: 1000,
+            maxOutputTokens: 1600,
           },
         }),
         cache: "no-store",

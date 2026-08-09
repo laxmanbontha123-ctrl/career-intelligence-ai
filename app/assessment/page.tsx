@@ -109,15 +109,53 @@ export default function AssessmentPage() {
 
   if (loading) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#050816] text-white">
+      <main className="overflow-hidden relative grid min-h-screen place-items-center bg-[#050816] text-white">
+      <video
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-[0.52]"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/videos/assessment-skills-background.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.68),rgba(5,8,22,0.84)),radial-gradient(circle_at_top_right,rgba(76,29,149,0.14),transparent_42%)]"
+      />
         <Loader2 className="animate-spin text-cyan-300" />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] px-4 py-10 text-white">
-      <div className="mx-auto max-w-5xl">
+    <main className="overflow-hidden relative min-h-screen bg-[#050816] px-4 py-10 text-white">
+      <video
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-[0.52]"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/videos/assessment-skills-background.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.68),rgba(5,8,22,0.84)),radial-gradient(circle_at_top_right,rgba(76,29,149,0.14),transparent_42%)]"
+      />
+      <div className="relative z-10 mx-auto max-w-5xl">
         <div className="mb-8">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10">
             <BrainCircuit className="text-cyan-300" />

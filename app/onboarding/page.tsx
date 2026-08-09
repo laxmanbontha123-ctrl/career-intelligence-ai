@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -93,8 +93,28 @@ export default function OnboardingPage() {
     "w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10";
 
   return (
-    <main className="min-h-screen bg-[#050816] px-4 py-10 text-white">
-      <div className="mx-auto max-w-5xl">
+    <main className="relative min-h-screen overflow-hidden bg-[#050816] px-4 py-10 text-white">
+      <video
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-[0.52]"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/videos/onboarding-profile-background.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.68),rgba(5,8,22,0.84)),radial-gradient(circle_at_top_right,rgba(76,29,149,0.14),transparent_42%)]"
+      />
+
+      <div className="relative z-10 mx-auto max-w-5xl">
         <div className="mb-8">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10">
             <BrainCircuit className="text-cyan-300" />

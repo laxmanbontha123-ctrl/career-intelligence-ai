@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   FormEvent,
   useEffect,
@@ -161,8 +163,27 @@ export default function MentorPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] px-4 py-6 text-white">
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-5xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl">
+    <main className="overflow-hidden relative min-h-screen bg-[#050816] px-4 py-6 text-white">
+      <video
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-[0.18]"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/videos/mentor-ai-background.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.78),rgba(5,8,22,0.9)),radial-gradient(circle_at_top_right,rgba(76,29,149,0.14),transparent_42%)]"
+      />
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-3rem)] max-w-5xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl">
         <header className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
@@ -206,8 +227,8 @@ export default function MentorPage() {
               <Loader2 className="animate-spin text-cyan-300" />
             </div>
           ) : messages.length === 0 ? (
-            <div className="mx-auto max-w-2xl py-12 text-center">
-              <div className="mx-auto grid h-16 w-16 place-items-center rounded-3xl border border-violet-400/20 bg-violet-400/10">
+            <div className="relative z-10 mx-auto max-w-2xl py-12 text-center">
+              <div className="relative z-10 mx-auto grid h-16 w-16 place-items-center rounded-3xl border border-violet-400/20 bg-violet-400/10">
                 <Sparkles className="text-violet-300" />
               </div>
 
@@ -234,7 +255,7 @@ export default function MentorPage() {
               </div>
             </div>
           ) : (
-            <div className="mx-auto max-w-3xl space-y-5">
+            <div className="relative z-10 mx-auto max-w-3xl space-y-5">
               {messages.map((message) => {
                 const assistant =
                   message.role === "assistant";
@@ -255,13 +276,78 @@ export default function MentorPage() {
                     )}
 
                     <div
-                      className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6 ${
+                      className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 ${
                         assistant
                           ? "border border-white/10 bg-white/[0.05] text-slate-200"
-                          : "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950"
+                          : "whitespace-pre-wrap bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950"
                       }`}
                     >
-                      {message.content}
+                      {assistant ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            h1: ({ children }) => (
+                              <h1 className="mb-3 mt-5 text-xl font-bold text-white first:mt-0">
+                                {children}
+                              </h1>
+                            ),
+                            h2: ({ children }) => (
+                              <h2 className="mb-2 mt-5 text-lg font-bold text-cyan-100 first:mt-0">
+                                {children}
+                              </h2>
+                            ),
+                            h3: ({ children }) => (
+                              <h3 className="mb-2 mt-4 font-bold text-cyan-200 first:mt-0">
+                                {children}
+                              </h3>
+                            ),
+                            p: ({ children }) => (
+                              <p className="mb-3 last:mb-0">
+                                {children}
+                              </p>
+                            ),
+                            ul: ({ children }) => (
+                              <ul className="mb-3 ml-5 list-disc space-y-1 marker:text-cyan-300">
+                                {children}
+                              </ul>
+                            ),
+                            ol: ({ children }) => (
+                              <ol className="mb-3 ml-5 list-decimal space-y-2 marker:font-semibold marker:text-violet-300">
+                                {children}
+                              </ol>
+                            ),
+                            li: ({ children }) => (
+                              <li className="pl-1">
+                                {children}
+                              </li>
+                            ),
+                            strong: ({ children }) => (
+                              <strong className="font-semibold text-white">
+                                {children}
+                              </strong>
+                            ),
+                            code: ({ children }) => (
+                              <code className="rounded bg-black/30 px-1.5 py-0.5 font-mono text-xs text-cyan-200">
+                                {children}
+                              </code>
+                            ),
+                            a: ({ href, children }) => (
+                              <a
+                                href={href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-cyan-300 underline underline-offset-2"
+                              >
+                                {children}
+                              </a>
+                            ),
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      ) : (
+                        message.content
+                      )}
                     </div>
 
                     {!assistant && (
@@ -300,14 +386,14 @@ export default function MentorPage() {
 
         <footer className="border-t border-white/10 p-4 sm:p-5">
           {error && (
-            <div className="mx-auto mb-3 max-w-3xl rounded-xl border border-red-400/20 bg-red-400/[0.08] px-4 py-2 text-sm text-red-300">
+            <div className="relative z-10 mx-auto mb-3 max-w-3xl rounded-xl border border-red-400/20 bg-red-400/[0.08] px-4 py-2 text-sm text-red-300">
               {error}
             </div>
           )}
 
           <form
             onSubmit={sendMessage}
-            className="mx-auto flex max-w-3xl items-end gap-3 rounded-2xl border border-white/10 bg-black/20 p-2 focus-within:border-cyan-400/30"
+            className="relative z-10 mx-auto flex max-w-3xl items-end gap-3 rounded-2xl border border-white/10 bg-black/20 p-2 focus-within:border-cyan-400/30"
           >
             <textarea
               value={input}

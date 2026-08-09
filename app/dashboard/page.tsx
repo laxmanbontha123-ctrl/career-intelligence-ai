@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   ArrowRight,
+  Bot,
   BrainCircuit,
   GraduationCap,
   FileSearch,
@@ -83,8 +84,28 @@ export default async function DashboardPage() {
         : "text-violet-300";
 
   return (
-    <main className="min-h-screen bg-[#050816] px-4 py-10 text-white">
-      <div className="mx-auto max-w-6xl">
+    <main className="relative min-h-screen overflow-hidden bg-[#050816] px-4 py-10 text-white">
+      <video
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-45"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/videos/dashboard-intelligence-background.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.68),rgba(5,8,22,0.84)),radial-gradient(circle_at_top_right,rgba(76,29,149,0.14),transparent_42%)]"
+      />
+
+      <div className="relative z-10 mx-auto max-w-6xl">
         <header className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10">
@@ -312,7 +333,7 @@ export default async function DashboardPage() {
             </h2>
           </div>
 
-          <div className="mt-5 grid gap-5 md:grid-cols-3">
+          <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             <Link
               href="/assessment"
               className="group rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-cyan-400/[0.06]"
@@ -378,6 +399,67 @@ export default async function DashboardPage() {
 
               <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-emerald-200">
                 Analyze resume
+                <ArrowRight
+                  size={16}
+                  className="transition group-hover:translate-x-1"
+                />
+              </div>
+            </Link>
+
+            <Link
+              href="/interview"
+              className="group rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-400/[0.08] to-violet-400/[0.05] p-6 transition hover:-translate-y-1 hover:border-cyan-400/40"
+            >
+              <div className="flex items-center justify-between">
+                <BrainCircuit className="text-cyan-300" />
+
+                <span className="rounded-full bg-violet-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+                  Gemini AI
+                </span>
+              </div>
+
+              <h3 className="mt-4 text-lg font-semibold">
+                AI Mock Interview Coach
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Practice target-role interview questions and receive
+                personalized technical feedback.
+              </p>
+
+              <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-cyan-200">
+                Start mock interview
+                <ArrowRight
+                  size={16}
+                  className="transition group-hover:translate-x-1"
+                />
+              </div>
+            </Link>
+
+            <Link
+              href="/mentor"
+              className="group rounded-3xl border border-white/10 bg-gradient-to-br from-violet-400/[0.09] to-cyan-400/[0.04] p-6 transition hover:-translate-y-1 hover:border-violet-400/40"
+            >
+              <div className="flex items-center justify-between">
+                <Bot className="text-violet-300" />
+
+                <span className="flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  Live AI
+                </span>
+              </div>
+
+              <h3 className="mt-4 text-lg font-semibold">
+                AI Career Mentor
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Get personalized guidance using your profile,
+                skills, roadmap and resume data.
+              </p>
+
+              <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-violet-200">
+                Ask your mentor
                 <ArrowRight
                   size={16}
                   className="transition group-hover:translate-x-1"
