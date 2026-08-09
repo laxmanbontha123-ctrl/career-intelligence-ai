@@ -27,52 +27,49 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
 
   async function handleGoogleRegister() {
-    setError("");
+  setError("");
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const credential =
-        await signInWithPopup(auth, googleProvider);
+    const credential =
+      await signInWithPopup(auth, googleProvider);
 
-      const response = await fetch("/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          authUid: credential.user.uid,
-          name:
-            credential.user.displayName ??
-            "CareerIntel Learner",
-          email: credential.user.email ?? "",
-          phone: credential.user.phoneNumber ?? "",
-          authMethod: "google",
-        }),
-      });
+    const idToken =
+      await credential.user.getIdToken(true);
 
-      const result = await response.json();
+    const response = await fetch("/api/auth/firebase-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idToken,
+      }),
+    });
 
-      if (!response.ok || !result.success) {
-        throw new Error(
-          result.message ??
-            "Unable to save Google user in MySQL."
-        );
-      }
+    const result = await response.json();
 
-      router.push("/dashboard");
-    } catch (err) {
-      console.error("Google sign-in error:", err);
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Google sign-in failed."
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.message ??
+          "Unable to verify Google authentication."
       );
-    } finally {
-      setLoading(false);
     }
+
+    router.replace("/dashboard");
+  } catch (err) {
+    console.error("Google sign-in error:", err);
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Google sign-in failed."
+    );
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <main className="auth-page">
@@ -128,7 +125,7 @@ export default function RegisterPage() {
               </span>
 
               <strong>
-                Verify → Profile → Intelligence → Progress
+                Verify â†’ Profile â†’ Intelligence â†’ Progress
               </strong>
             </div>
 
@@ -231,7 +228,7 @@ export default function RegisterPage() {
           )}
 
           <div className="passwordless-note">
-            <span>✓</span>
+            <span>âœ“</span>
             No password required
           </div>
 

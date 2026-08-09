@@ -169,19 +169,16 @@ export default function PhoneRegisterPage() {
       const credential =
         await confirmationRef.current.confirm(otp);
 
-      const response = await fetch("/api/users", {
+      const idToken =
+        await credential.user.getIdToken(true);
+
+      const response = await fetch("/api/auth/firebase-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          authUid: credential.user.uid,
-          name:
-            credential.user.displayName ??
-            "CareerIntel Learner",
-          email: credential.user.email ?? "",
-          phone: credential.user.phoneNumber ?? "",
-          authMethod: "phone",
+          idToken,
         }),
       });
 
@@ -190,7 +187,7 @@ export default function PhoneRegisterPage() {
       if (!response.ok || !result.success) {
         throw new Error(
           result.message ??
-            "Unable to save user in MySQL."
+            "Unable to verify Phone authentication."
         );
       }
 

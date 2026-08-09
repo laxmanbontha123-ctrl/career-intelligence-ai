@@ -8,19 +8,25 @@ datasource db {
 }
 
 model User {
-  id               Int      @id @default(autoincrement())
-  authUid          String   @unique
+  id               Int               @id @default(autoincrement())
+  authUid          String            @unique
   name             String?
-  email            String?  @unique
-  phone            String?  @unique
-  role             String   @default("student")
+  email            String?           @unique
+  phone            String?           @unique
+  role             String            @default("student")
   authMethod       String?
-  profileCompleted Boolean  @default(false)
+  profileCompleted Boolean           @default(false)
   targetRole       String?
-  readinessScore   Int      @default(0)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  readinessScore   Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  learnerProfile   LearnerProfile?
+  userSkills       UserSkill[]
+  roadmapProgress  RoadmapProgress[]
+  resumeAnalyses   ResumeAnalysis[]
+  mentorMessages   MentorMessage[]
 }
+
 model EmailOtp {
   id        Int      @id @default(autoincrement())
   email     String
@@ -31,4 +37,84 @@ model EmailOtp {
   createdAt DateTime @default(now())
 
   @@index([email])
+}
+
+model LearnerProfile {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  institution       String?
+  degree            String?
+  branch            String?
+  currentYear       Int?
+  cgpa              Float?
+  graduationYear    Int?
+  experienceLevel   String?
+  preferredWorkMode String?
+  location          String?
+  bio               String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSkill {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  category  String
+  level     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model RoadmapProgress {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  taskKey     String
+  skill       String
+  phase       String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, taskKey])
+  @@index([userId])
+}
+
+model ResumeAnalysis {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  resumeText      String   @db.LongText
+  atsScore        Int
+  matchedKeywords String   @db.Text
+  missingKeywords String   @db.Text
+  strengths       String   @db.Text
+  suggestions     String   @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model MentorMessage {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  role      String
+  content   String   @db.LongText
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
