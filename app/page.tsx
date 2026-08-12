@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   ArrowRight,
   BrainCircuit,
@@ -67,11 +68,13 @@ export default function Home() {
           </div>
 
           <div className="nav-actions">
-            <button className="text-btn">Sign in</button>
-            <button className="nav-cta">
+            <Link className="text-btn" href="/register">
+              Sign in
+            </Link>
+            <Link className="nav-cta" href="/register">
               Get Started
               <ArrowRight size={16} />
-            </button>
+            </Link>
           </div>
         </nav>
 
@@ -94,14 +97,14 @@ export default function Home() {
             </p>
 
             <div className="hero-actions">
-              <button className="primary-btn">
+              <Link className="primary-btn" href="/register">
                 Build My Career Roadmap
                 <ArrowRight size={18} />
-              </button>
-              <button className="secondary-btn">
+              </Link>
+              <Link className="secondary-btn" href="/register">
                 <BrainCircuit size={18} />
                 Explore Intelligence
-              </button>
+              </Link>
             </div>
 
             <div className="hero-proof">
@@ -236,10 +239,10 @@ export default function Home() {
               </div>
               <h3>{title}</h3>
               <p>{text}</p>
-              <button>
+              <Link className="feature-link" href="/register">
                 Explore module
                 <ArrowRight size={15} />
-              </button>
+              </Link>
             </article>
           ))}
         </div>

@@ -1483,3 +1483,22 @@ a {
 #recaptcha-container {
   min-height: 1px;
 }
+
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.feature-link svg {
+  transition: transform 180ms ease;
+}
+
+.feature-link:hover svg {
+  transform: translateX(4px);
+}
