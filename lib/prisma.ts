@@ -15,7 +15,10 @@ const adapter = new PrismaMariaDb({
   user: decodeURIComponent(url.username),
   password: decodeURIComponent(url.password),
   database: url.pathname.replace("/", ""),
-  connectionLimit: 5,
+  connectionLimit: 3,
+  connectTimeout: 15000,
+  acquireTimeout: 20000,
+  idleTimeout: 60,
 });
 
 const globalForPrisma = globalThis as unknown as {
