@@ -6,15 +6,23 @@ import {
   BrainCircuit,
   GraduationCap,
   FileSearch,
+  LogOut,
   Map,
   RefreshCw,
   Sparkles,
   Target,
   TrendingUp,
 } from "lucide-react";
-import { getSession } from "@/lib/session";
+import { deleteSession, getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getRequiredSkills } from "@/lib/role-skills";
+
+async function logoutAction() {
+  "use server";
+
+  await deleteSession();
+  redirect("/");
+}
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -125,15 +133,27 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <Link
-            href="/assessment"
-            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
-          >
-            <RefreshCw size={17} />
-            {assessmentCompleted
-              ? "Update Assessment"
-              : "Start Assessment"}
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/assessment"
+              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
+            >
+              <RefreshCw size={17} />
+              {assessmentCompleted
+                ? "Update Assessment"
+                : "Start Assessment"}
+            </Link>
+
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="flex h-full items-center justify-center gap-2 rounded-xl border border-rose-400/20 bg-rose-400/[0.08] px-5 py-3 text-sm font-semibold text-rose-200 transition hover:border-rose-400/40 hover:bg-rose-400/15"
+              >
+                <LogOut size={17} />
+                Logout
+              </button>
+            </form>
+          </div>
         </header>
 
         <section className="mt-8 grid gap-5 md:grid-cols-3">
