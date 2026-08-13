@@ -125,7 +125,7 @@ export default function RegisterPage() {
               </span>
 
               <strong>
-                Verify â†’ Profile â†’ Intelligence â†’ Progress
+                Verify &rarr; Profile &rarr; Intelligence &rarr; Progress
               </strong>
             </div>
 
@@ -228,7 +228,7 @@ export default function RegisterPage() {
           )}
 
           <div className="passwordless-note">
-            <span>âœ“</span>
+            <span>&#10003;</span>
             No password required
           </div>
 

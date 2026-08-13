@@ -46,6 +46,26 @@ export default function Home() {
   return (
     <main>
       <section className="hero">
+        <video
+          aria-hidden="true"
+          className="landing-hero-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        >
+          <source
+            src="/videos/landing-career-intelligence-background.mp4"
+            type="video/mp4"
+          />
+        </video>
+
+        <div
+          aria-hidden="true"
+          className="landing-hero-video-overlay"
+        />
+
         <div className="grid-glow" />
         <div className="orb orb-one" />
         <div className="orb orb-two" />

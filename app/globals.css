@@ -1502,3 +1502,57 @@ a {
 .feature-link:hover svg {
   transform: translateX(4px);
 }
+/* CareerIntel cinematic landing hero */
+.landing-hero-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.60;
+  pointer-events: none;
+}
+
+.landing-hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(4, 8, 22, 0.78) 0%,
+      rgba(4, 8, 22, 0.61) 42%,
+      rgba(4, 8, 22, 0.38) 72%,
+      rgba(4, 8, 22, 0.58) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(4, 8, 22, 0.28) 0%,
+      rgba(4, 8, 22, 0.46) 100%
+    );
+}
+
+.hero .grid-glow,
+.hero .orb {
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .landing-hero-video {
+    opacity: 0.25;
+    object-position: 58% center;
+  }
+
+  .landing-hero-video-overlay {
+    background: rgba(4, 8, 22, 0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero-video {
+    display: none;
+  }
+}

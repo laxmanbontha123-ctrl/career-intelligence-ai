@@ -267,7 +267,7 @@ export default function EmailRegisterPage() {
             )}
 
             <p className="mt-7 text-center text-xs leading-5 text-slate-500">
-              Passwordless authentication â€¢ OTP expires in 10 minutes
+              Passwordless authentication &bull; OTP expires in 10 minutes
             </p>
           </section>
         </div>
