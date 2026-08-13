@@ -16,6 +16,7 @@ import {
 import { deleteSession, getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getRequiredSkills } from "@/lib/role-skills";
+import { DailySuccessCopilot } from "./daily-success-copilot";
 
 async function logoutAction() {
   "use server";
@@ -205,6 +206,8 @@ export default async function DashboardPage() {
             </div>
           </article>
         </section>
+
+        <DailySuccessCopilot />
 
         {!assessmentCompleted ? (
           <section className="mt-6 rounded-3xl border border-cyan-400/20 bg-cyan-400/[0.06] p-8 text-center">
