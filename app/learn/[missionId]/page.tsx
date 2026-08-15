@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import {
+  isValidElement,
+  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -73,6 +75,157 @@ type VerificationResult = {
   feedback?: string;
 };
 
+function enhanceGeneratedMarkdown(content: string) {
+  return content
+    .replace(/\r\n/g, "\n")
+    .replace(
+      /^[ \t]*(?:[-*+]\s+)?(?:\*\*)?Command:(?:\*\*)?[ \t]+`?(.+?)`?[ \t]*$/gim,
+      (_match, command: string) =>
+        `\n\`\`\`bash\n${command.trim()}\n\`\`\`\n`
+    )
+    .replace(
+      /^[ \t]*(?:[-*+]\s+)?(?:\*\*)?Expected Output:(?:\*\*)?[ \t]*(.+)$/gim,
+      (_match, output: string) =>
+        `\n**Expected output:** ${output.trim()}\n`
+    )
+    .replace(
+      /^[ \t]*[-*+]\s+\[\s*\]\s+/gm,
+      "- \u2610 "
+    )
+    .replace(
+      /^[ \t]*[-*+]\s+\[\s*[xX]\s*\]\s+/gm,
+      "- \u2611 "
+    );
+}
+
+function CopyableCodeBlock({
+  children,
+}: {
+  children?: ReactNode;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const codeElement =
+    isValidElement<{ children?: ReactNode }>(children)
+      ? children
+      : null;
+
+  const code = String(
+    codeElement?.props.children ?? children ?? ""
+  ).replace(/\n$/, "");
+
+  async function copyCode() {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+
+      window.setTimeout(() => {
+        setCopied(false);
+      }, 1600);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  const displayCode = code.replace(/\\n/g, "\n");
+  return (
+    <div className="my-5 overflow-hidden rounded-2xl border border-cyan-400/20 bg-[#020617] shadow-lg shadow-cyan-950/20">
+      <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.04] px-4 py-2">
+        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+          Terminal command
+        </span>
+
+        <button
+          type="button"
+          onClick={() => void copyCode()}
+          className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/30 hover:text-cyan-200"
+        >
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+
+      <pre className="overflow-hidden whitespace-pre-wrap break-words [overflow-wrap:anywhere] [&_code]:whitespace-pre-wrap [&_code]:break-words p-4 text-sm leading-6 text-cyan-100">
+            <code>{displayCode}</code>
+          </pre>
+    </div>
+  );
+}
+
+function MarkdownContent({
+  content,
+}: {
+  content: string;
+}) {
+  return (
+    <ReactMarkdown
+      components={{
+        h1: ({ children }) => (
+          <h2 className="mt-8 text-2xl font-bold text-white">
+            {children}
+          </h2>
+        ),
+        h2: ({ children }) => (
+          <h2 className="mt-8 text-xl font-bold text-white">
+            {children}
+          </h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="mt-6 text-lg font-semibold text-cyan-100">
+            {children}
+          </h3>
+        ),
+        p: ({ children }) => (
+          <p className="mt-3 leading-7 text-slate-300">
+            {children}
+          </p>
+        ),
+        ul: ({ children }) => (
+          <ul className="ml-6 mt-3 list-disc space-y-2 text-slate-300 marker:text-cyan-400">
+            {children}
+          </ul>
+        ),
+        ol: ({ children }) => (
+          <ol className="ml-6 mt-3 list-decimal space-y-3 text-slate-300 marker:font-bold marker:text-violet-300">
+            {children}
+          </ol>
+        ),
+        li: ({ children }) => (
+          <li className="pl-1 leading-7">{children}</li>
+        ),
+        code: ({ children, className }) => (
+          <code
+            className={
+              className
+                ? `font-mono text-sm text-cyan-100 ${className}`
+                : "rounded-md border border-white/10 bg-black/40 px-1.5 py-1 font-mono text-sm text-cyan-200"
+            }
+          >
+            {children}
+          </code>
+        ),
+        pre: ({ children }) => (
+          <CopyableCodeBlock>{children}</CopyableCodeBlock>
+        ),
+        strong: ({ children }) => (
+          <strong className="font-semibold text-white">
+            {children}
+          </strong>
+        ),
+        blockquote: ({ children }) => (
+          <blockquote className="my-4 rounded-r-xl border-l-4 border-cyan-400 bg-cyan-400/[0.06] px-5 py-3 text-slate-300">
+            {children}
+          </blockquote>
+        ),
+        hr: () => (
+          <hr className="my-7 border-white/10" />
+        ),
+      }}
+    >
+      {enhanceGeneratedMarkdown(content)}
+    </ReactMarkdown>
+  );
+}
+
 export default function LearningMissionPage() {
   const params = useParams<{
     missionId: string;
@@ -99,6 +252,12 @@ export default function LearningMissionPage() {
   const [error, setError] = useState("");
 
   const loadMission = useCallback(async () => {
+    const controller = new AbortController();
+
+    const timeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, 35000);
+
     try {
       setLoading(true);
       setError("");
@@ -107,11 +266,21 @@ export default function LearningMissionPage() {
         `/api/learning-mission/${missionId}`,
         {
           cache: "no-store",
+          signal: controller.signal,
         }
       );
 
-      const payload =
-        (await response.json()) as MissionData;
+      const responseText = await response.text();
+
+      let payload: MissionData;
+
+      try {
+        payload = JSON.parse(responseText) as MissionData;
+      } catch {
+        throw new Error(
+          "Tutor service returned an invalid response. Please refresh and try again."
+        );
+      }
 
       if (!response.ok || !payload.success) {
         throw new Error(
@@ -125,12 +294,17 @@ export default function LearningMissionPage() {
         payload.content.quiz.map(() => null)
       );
     } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "Unable to load this mission."
-      );
+      const message =
+        loadError instanceof DOMException &&
+        loadError.name === "AbortError"
+          ? "Tutor request timed out. Please refresh and try again."
+          : loadError instanceof Error
+            ? loadError.message
+            : "Unable to load this mission.";
+
+      setError(message);
     } finally {
+      window.clearTimeout(timeoutId);
       setLoading(false);
     }
   }, [missionId]);
@@ -446,57 +620,9 @@ export default function LearningMissionPage() {
           </div>
 
           <div className="mt-7 space-y-4 leading-7 text-slate-300">
-            <ReactMarkdown
-              components={{
-                h1: ({ children }) => (
-                  <h2 className="mt-7 text-2xl font-bold text-white">
-                    {children}
-                  </h2>
-                ),
-                h2: ({ children }) => (
-                  <h2 className="mt-7 text-xl font-bold text-white">
-                    {children}
-                  </h2>
-                ),
-                h3: ({ children }) => (
-                  <h3 className="mt-6 text-lg font-semibold text-cyan-100">
-                    {children}
-                  </h3>
-                ),
-                p: ({ children }) => (
-                  <p className="leading-7 text-slate-300">
-                    {children}
-                  </p>
-                ),
-                ul: ({ children }) => (
-                  <ul className="ml-6 list-disc space-y-2 text-slate-300">
-                    {children}
-                  </ul>
-                ),
-                ol: ({ children }) => (
-                  <ol className="ml-6 list-decimal space-y-2 text-slate-300">
-                    {children}
-                  </ol>
-                ),
-                code: ({ children }) => (
-                  <code className="rounded bg-black/40 px-1.5 py-1 font-mono text-sm text-cyan-200">
-                    {children}
-                  </code>
-                ),
-                pre: ({ children }) => (
-                  <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-black/40 p-4 text-sm">
-                    {children}
-                  </pre>
-                ),
-                strong: ({ children }) => (
-                  <strong className="font-semibold text-white">
-                    {children}
-                  </strong>
-                ),
-              }}
-            >
-              {data.content.lessonMarkdown}
-            </ReactMarkdown>
+            <MarkdownContent
+              content={data.content.lessonMarkdown}
+            />
           </div>
 
           <button
@@ -538,9 +664,9 @@ export default function LearningMissionPage() {
           </div>
 
           <div className="mt-6 space-y-4 leading-7 text-slate-300">
-            <ReactMarkdown>
-              {data.content.practiceMarkdown}
-            </ReactMarkdown>
+            <MarkdownContent
+              content={data.content.practiceMarkdown}
+            />
           </div>
 
           <label className="mt-7 block">

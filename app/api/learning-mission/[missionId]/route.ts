@@ -76,6 +76,15 @@ function validateLesson(value: unknown): GeneratedLesson {
     throw new Error("Incomplete lesson content.");
   }
 
+  if (
+    lesson.lessonMarkdown.trim().length < 2500 ||
+    lesson.practiceMarkdown.trim().length < 800
+  ) {
+    throw new Error(
+      "Gemini lesson was shorter than required."
+    );
+  }
+
   const quiz = lesson.quiz.map((question) => {
     if (
       !question ||
@@ -108,6 +117,126 @@ function validateLesson(value: unknown): GeneratedLesson {
   };
 }
 
+function createFallbackLesson(input: {
+  missionTitle: string;
+  missionDescription: string;
+  category: string;
+  targetRole: string | null;
+  degree: string | null;
+  branch: string | null;
+}): GeneratedLesson {
+  const topic =
+    input.missionTitle.trim() || input.category;
+
+  const description =
+    input.missionDescription.trim() ||
+    `Build practical confidence in ${topic}.`;
+
+  return {
+    lessonTitle: `${topic}: guided mastery lesson`,
+    objectives: [
+      `Explain the purpose and fundamentals of ${topic}.`,
+      `Identify the inputs, process and expected output.`,
+      `Apply ${topic} through a practical exercise.`,
+      `Recognize common mistakes and correct them.`,
+      `Verify learning with evidence and a quiz.`,
+    ],
+    lessonMarkdown: [
+      `## Why this topic matters`,
+      `${description}`,
+      `For a ${input.targetRole || "career-ready student"}, learning **${topic}** means understanding the concept, applying it and explaining the result.`,
+      `## Learn it using five questions`,
+      `1. **Purpose:** What problem does ${topic} solve?`,
+      `2. **Inputs:** What information, tools or prerequisites are required?`,
+      `3. **Process:** What steps must be performed in the correct order?`,
+      `4. **Output:** What successful result should appear?`,
+      `5. **Failure conditions:** What common mistakes can prevent success?`,
+      `## Practical learning method`,
+      `Study one trusted explanation, reproduce one working example and then change one part of the example yourself. Record the output and explain what changed.`,
+      `## Common mistakes`,
+      `- Copying steps without understanding their purpose.`,
+      `- Skipping prerequisites or verification.`,
+      `- Ignoring error messages instead of isolating the cause.`,
+      `- Marking the task complete without producing evidence.`,
+      `## Completion standard`,
+      `You have learned ${topic} only when you can explain it simply, complete the practical task and score at least 80% in the verification quiz.`,
+    ].join("\n\n"),
+    practiceMarkdown: [
+      `## Required practical task`,
+      `1. Write a two-sentence definition of **${topic}**.`,
+      `2. List its required inputs, main process and expected output.`,
+      `3. Complete one small working example using an appropriate tool.`,
+      `4. Change one input or configuration and observe the result.`,
+      `5. Write at least 80 characters explaining what you did, the output obtained and one mistake you corrected.`,
+    ].join("\n\n"),
+    sources: [
+      `Official documentation for ${topic}`,
+      `Trusted course material for ${input.branch || input.degree || "the selected topic"}`,
+    ],
+    quiz: [
+      {
+        question: `Which result best proves that ${topic} was learned?`,
+        options: [
+          "A working output with a clear explanation",
+          "Opening the lesson page",
+          "Copying notes without practice",
+          "Marking the task complete immediately",
+        ],
+        correctAnswer: 0,
+        explanation:
+          "Real learning requires both practical evidence and understanding.",
+      },
+      {
+        question: "What should be identified before starting the practical task?",
+        options: [
+          "Only the completion time",
+          "Inputs, process and expected output",
+          "Only the final answer",
+          "The easiest shortcut",
+        ],
+        correctAnswer: 1,
+        explanation:
+          "Understanding inputs, process and output creates a reliable learning path.",
+      },
+      {
+        question: "What is the best response when the practical output fails?",
+        options: [
+          "Mark the mission complete",
+          "Ignore the error",
+          "Read the error and isolate its cause",
+          "Repeat randomly",
+        ],
+        correctAnswer: 2,
+        explanation:
+          "Error analysis is an important part of practical mastery.",
+      },
+      {
+        question: "Why should one input or configuration be changed?",
+        options: [
+          "To make the task longer",
+          "To verify cause-and-effect understanding",
+          "To avoid creating evidence",
+          "To skip the fundamentals",
+        ],
+        correctAnswer: 1,
+        explanation:
+          "Changing one variable confirms that the learner understands its effect.",
+      },
+      {
+        question: "When is this mission considered verified?",
+        options: [
+          "Immediately after opening it",
+          "After reading only the heading",
+          "After practical evidence and the required quiz score",
+          "After waiting for the timer",
+        ],
+        correctAnswer: 2,
+        explanation:
+          "CareerIntel requires evidence and a passing score before completion.",
+      },
+    ],
+  };
+}
 async function generateLesson(input: {
   missionTitle: string;
   missionDescription: string;
@@ -118,7 +247,8 @@ async function generateLesson(input: {
 }) {
   const apiKey = process.env.GEMINI_API_KEY;
   const model =
-    process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    process.env.GEMINI_TUTOR_MODEL ||
+    "gemini-3.5-flash-lite";
 
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not configured.");
@@ -142,6 +272,11 @@ Requirements:
 2. Use simple professional English.
 3. Include definitions, examples and common mistakes.
 4. Include a practical exercise the student must perform.
+4A. lessonMarkdown must contain 900 to 1200 useful words.
+4B. Include fundamentals, important terminology, concept explanation, at least two realistic examples, common mistakes, troubleshooting and a concise revision summary.
+4C. practiceMarkdown must contain prerequisites, 8 to 12 exact numbered steps, commands or examples wherever relevant, expected output for every important step and a final evidence checklist.
+4D. The practical task must produce a real observable output. Do not give vague instructions such as only read, explore or understand.
+4E. Keep the lesson specific to the mission topic and the student's target role.
 5. Create exactly 5 multiple-choice questions.
 6. Each question must have exactly 4 options.
 7. correctAnswer must be a zero-based option index from 0 to 3.
@@ -185,8 +320,10 @@ Return only valid JSON using this exact structure:
           },
         ],
         generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 8192,
+          thinkingConfig: {
+            thinkingLevel: "MINIMAL",
+          },
+          maxOutputTokens: 4500,
           responseMimeType: "application/json",
           responseSchema: {
             type: "OBJECT",
@@ -254,6 +391,7 @@ Return only valid JSON using this exact structure:
         },
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(40000),
     }
   );
 
@@ -445,19 +583,45 @@ export async function GET(
 
     let learningContent = mission.learningContent;
 
-    if (!learningContent) {
-      const generated = await generateLesson({
+    const contentNeedsUpgrade =
+      !learningContent ||
+      learningContent.lessonTitle.endsWith(
+        ": guided mastery lesson"
+      ) ||
+      learningContent.lessonMarkdown.length < 2500 ||
+      learningContent.practiceMarkdown.length < 800;
+
+    if (contentNeedsUpgrade) {
+      const lessonInput = {
         missionTitle: mission.title,
         missionDescription: mission.description,
         category: mission.category,
         targetRole: mission.user.targetRole,
-        degree: mission.user.learnerProfile?.degree ?? null,
-        branch: mission.user.learnerProfile?.branch ?? null,
-      });
+        degree:
+          mission.user.learnerProfile?.degree ?? null,
+        branch:
+          mission.user.learnerProfile?.branch ?? null,
+      };
+
+      const generated = await generateLesson(lessonInput);
 
       learningContent =
-        await prisma.missionLearningContent.create({
-          data: {
+        await prisma.missionLearningContent.upsert({
+          where: { missionId: mission.id },
+          update: {
+            lessonTitle: generated.lessonTitle,
+            objectivesJson: JSON.stringify(
+              generated.objectives
+            ),
+            lessonMarkdown: generated.lessonMarkdown,
+            practiceMarkdown:
+              generated.practiceMarkdown,
+            quizJson: JSON.stringify(generated.quiz),
+            sourcesJson: JSON.stringify(
+              generated.sources
+            ),
+          },
+          create: {
             missionId: mission.id,
             lessonTitle: generated.lessonTitle,
             objectivesJson: JSON.stringify(
@@ -474,6 +638,11 @@ export async function GET(
         });
     }
 
+    if (!learningContent) {
+      throw new Error(
+        "Unable to prepare upgraded lesson content."
+      );
+    }
     if (!mission.startedAt) {
       await prisma.dailyMission.update({
         where: {
