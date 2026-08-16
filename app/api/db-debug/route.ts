@@ -9,7 +9,7 @@ export async function GET() {
       Array<{
         db: string | null;
         host: string | null;
-        port: number | null;
+        port: bigint | null;
       }>
     >`
       SELECT
@@ -24,29 +24,24 @@ export async function GET() {
       SELECT TABLE_NAME
       FROM INFORMATION_SCHEMA.TABLES
       WHERE TABLE_SCHEMA = DATABASE()
-        AND TABLE_NAME IN (
-          'User',
-          'LearnerProfile',
-          'UserSettings',
-          'Opportunity',
-          'OpportunitySkill',
-          'SavedOpportunity'
-        )
       ORDER BY TABLE_NAME
     `;
 
-    const columns = await prisma.$queryRaw<
+    const userColumns = await prisma.$queryRaw<
       Array<{ COLUMN_NAME: string }>
     >`
       SELECT COLUMN_NAME
       FROM INFORMATION_SCHEMA.COLUMNS
       WHERE TABLE_SCHEMA = DATABASE()
         AND TABLE_NAME = 'User'
-        AND COLUMN_NAME = 'avatarDataUrl'
+      ORDER BY ORDINAL_POSITION
     `;
 
     const migrations = await prisma.$queryRaw<
-      Array<{ migration_name: string; finished_at: Date | null }>
+      Array<{
+        migration_name: string;
+        finished_at: Date | null;
+      }>
     >`
       SELECT migration_name, finished_at
       FROM _prisma_migrations
@@ -58,9 +53,16 @@ export async function GET() {
       success: true,
       database: database[0]?.db ?? null,
       host: database[0]?.host ?? null,
-      port: database[0]?.port ? Number(database[0].port) : null,
+      port: database[0]?.port
+        ? Number(database[0].port)
+        : null,
       tables: tables.map((row) => row.TABLE_NAME),
-      avatarDataUrlExists: columns.length > 0,
+      userColumns: userColumns.map(
+        (row) => row.COLUMN_NAME
+      ),
+      avatarDataUrlExists: userColumns.some(
+        (row) => row.COLUMN_NAME === "avatarDataUrl"
+      ),
       recentMigrations: migrations,
     });
   } catch (error) {
@@ -78,5 +80,3 @@ export async function GET() {
     );
   }
 }
-
-
