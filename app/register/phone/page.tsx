@@ -162,11 +162,6 @@ export default function PhoneRegisterPage() {
     setError("");
     setMessage("");
 
-    if (!confirmationRef.current) {
-      setError("Please request a new OTP.");
-      return;
-    }
-
     if (otp.length !== 6) {
       setError("Enter the complete 6-digit OTP.");
       return;
@@ -203,6 +198,11 @@ export default function PhoneRegisterPage() {
         }
 
         router.push("/dashboard");
+        return;
+      }
+
+      if (!confirmationRef.current) {
+        setError("Please request a new OTP.");
         return;
       }
 
@@ -463,3 +463,4 @@ export default function PhoneRegisterPage() {
     </main>
   );
 }
+
