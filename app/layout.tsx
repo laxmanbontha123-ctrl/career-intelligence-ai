@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import CareerShell from "@/app/components/career-shell";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -17,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider><CareerShell>{children}</CareerShell></AuthProvider>
       </body>
     </html>
   );

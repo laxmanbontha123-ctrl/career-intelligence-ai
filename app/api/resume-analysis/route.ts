@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getRequiredSkills } from "@/lib/role-skills";
+import { extractResumeText } from "@/lib/resume-file-extractor";
+
+export const runtime = "nodejs";
 
 const sectionChecks = [
   {
@@ -39,6 +42,78 @@ function safeParse(value: string) {
     return JSON.parse(value);
   } catch {
     return [];
+  }
+}
+
+type ResumeInputResult =
+  | {
+      success: true;
+      resumeText: string;
+      fileName: string | null;
+      inputMethod: "text" | "file";
+    }
+  | {
+      success: false;
+      message: string;
+    };
+
+async function readResumeInput(
+  request: Request
+): Promise<ResumeInputResult> {
+  const contentType =
+    request.headers.get("content-type") ?? "";
+
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await request.formData();
+    const resumeFile = formData.get("resumeFile");
+
+    if (!(resumeFile instanceof File)) {
+      return {
+        success: false,
+        message: "Please select a PDF or DOCX resume.",
+      };
+    }
+
+    try {
+      const resumeText =
+        await extractResumeText(resumeFile);
+
+      return {
+        success: true,
+        resumeText,
+        fileName: resumeFile.name,
+        inputMethod: "file",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Unable to read the uploaded resume.",
+      };
+    }
+  }
+
+  try {
+    const body = (await request.json()) as {
+      resumeText?: unknown;
+    };
+
+    return {
+      success: true,
+      resumeText:
+        typeof body.resumeText === "string"
+          ? body.resumeText.trim()
+          : "",
+      fileName: null,
+      inputMethod: "text",
+    };
+  } catch {
+    return {
+      success: false,
+      message: "Invalid resume analysis request.",
+    };
   }
 }
 
@@ -87,11 +162,23 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const resumeText =
-      typeof body.resumeText === "string"
-        ? body.resumeText.trim()
-        : "";
+    const resumeInput = await readResumeInput(request);
+
+    if (!resumeInput.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: resumeInput.message,
+        },
+        { status: 400 }
+      );
+    }
+
+    const {
+      resumeText,
+      fileName,
+      inputMethod,
+    } = resumeInput;
 
     if (resumeText.length < 150) {
       return NextResponse.json(
@@ -336,6 +423,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       analysisId: analysis.id,
+      fileName,
+      inputMethod,
       targetRole: user.targetRole,
       atsScore,
       wordCount,

@@ -1556,3 +1556,91 @@ a {
     display: none;
   }
 }
+/* CareerIntel fixed full-page cinematic landing background */
+.landing-page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: clip;
+  isolation: isolate;
+  background: #050816;
+}
+
+.landing-page .hero {
+  overflow: visible;
+  background: transparent;
+}
+
+.landing-page .landing-hero-video {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
+.landing-page .landing-hero-video-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.landing-page > section {
+  position: relative;
+  z-index: 2;
+}
+
+.landing-page .features-section {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 11, 24, 0.74),
+      rgba(5, 8, 22, 0.86)
+    );
+  backdrop-filter: blur(2px);
+}
+
+.landing-page .career-flow-section {
+  background:
+    radial-gradient(
+      circle at 75% 50%,
+      rgba(111, 124, 255, 0.12),
+      transparent 36%
+    ),
+    rgba(5, 8, 22, 0.82);
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+  .landing-page .landing-hero-video {
+    opacity: 0.32;
+    object-position: 58% center;
+  }
+
+  .landing-page .features-section,
+  .landing-page .career-flow-section {
+    backdrop-filter: none;
+  }
+}
+
+/* Uniform landing video visibility across every section */
+.landing-page .features-section {
+  background: rgba(5, 8, 22, 0.58);
+  backdrop-filter: blur(1px);
+}
+
+.landing-page .career-flow-section {
+  background:
+    radial-gradient(
+      circle at 75% 50%,
+      rgba(111, 124, 255, 0.10),
+      transparent 38%
+    ),
+    rgba(5, 8, 22, 0.58);
+  backdrop-filter: blur(1px);
+}

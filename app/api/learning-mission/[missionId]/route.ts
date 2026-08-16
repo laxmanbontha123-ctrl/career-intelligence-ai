@@ -834,24 +834,44 @@ export async function POST(
       score
     );
 
-    const incorrectFeedback = quiz
-      .map((question, index) => ({
-        correct:
-          answers[index] === question.correctAnswer,
-        question: question.question,
-        explanation: question.explanation,
-      }))
+    const questionResults = quiz.map(
+      (question, index) => {
+        const selectedAnswer = answers[index];
+
+        return {
+          questionNumber: index + 1,
+          question: question.question,
+          selectedAnswer,
+          selectedOption:
+            question.options[selectedAnswer] ??
+            "Not answered",
+          correctAnswer: question.correctAnswer,
+          correctOption:
+            question.options[question.correctAnswer],
+          correct:
+            selectedAnswer === question.correctAnswer,
+          explanation: question.explanation,
+        };
+      }
+    );
+
+    const incorrectFeedback = questionResults
       .filter((item) => !item.correct)
       .map(
         (item) =>
           `${item.question}: ${item.explanation}`
       );
 
+    const improvementTips = questionResults
+      .filter((item) => !item.correct)
+      .map(
+        (item) =>
+          `Review "${item.question}". ${item.explanation}`
+      );
+
     const feedback = passed
       ? `Verified with ${score}%. Excellent work. The next mission is now unlocked.`
-      : `You scored ${score}%. Review these concepts and try again: ${incorrectFeedback.join(
-          " | "
-        )}`;
+      : `You scored ${score}%. Review the incorrect answers below and try again.`;
 
     const verifiedAt =
       passed && !mission.verifiedAt
@@ -893,6 +913,10 @@ export async function POST(
       requiredScore: mission.requiredScore,
       bestScore,
       feedback,
+      correctCount,
+      totalQuestions: quiz.length,
+      questionResults,
+      improvementTips,
       nextMissionUnlocked: passed,
     });
   } catch (error) {

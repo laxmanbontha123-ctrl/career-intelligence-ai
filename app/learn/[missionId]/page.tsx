@@ -73,6 +73,19 @@ type VerificationResult = {
   requiredScore?: number;
   bestScore?: number;
   feedback?: string;
+  correctCount?: number;
+  totalQuestions?: number;
+  improvementTips?: string[];
+  questionResults?: Array<{
+    questionNumber: number;
+    question: string;
+    selectedAnswer: number;
+    selectedOption: string;
+    correctAnswer: number;
+    correctOption: string;
+    correct: boolean;
+    explanation: string;
+  }>;
 };
 
 function enhanceGeneratedMarkdown(content: string) {
@@ -129,7 +142,7 @@ function CopyableCodeBlock({
 
   const displayCode = code.replace(/\\n/g, "\n");
   return (
-    <div className="my-5 overflow-hidden rounded-2xl border border-cyan-400/20 bg-[#020617] shadow-lg shadow-cyan-950/20">
+    <div className="my-5 overflow-hidden rounded-2xl border border-cyan-400/20 bg-[#020617]/65 shadow-lg backdrop-blur-xl shadow-cyan-950/20">
       <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.04] px-4 py-2">
         <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
           Terminal command
@@ -226,6 +239,31 @@ function MarkdownContent({
   );
 }
 
+function TutorBackground() {
+  return (
+    <>
+      <video
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-45"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/videos/mentor-ai-background.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.64),rgba(5,8,22,0.90)),radial-gradient(circle_at_top_right,rgba(34,211,238,0.12),transparent_42%),radial-gradient(circle_at_bottom_left,rgba(139,92,246,0.12),transparent_46%)]"
+      />
+    </>
+  );
+}
 export default function LearningMissionPage() {
   const params = useParams<{
     missionId: string;
@@ -420,9 +458,11 @@ export default function LearningMissionPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#050816] px-5 text-white">
-        <div className="max-w-md text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#050816] px-5 text-white">
+        <TutorBackground />
+
+        <div className="relative z-10 max-w-md rounded-3xl border border-cyan-400/20 bg-[#071022]/60 p-8 text-center shadow-2xl shadow-cyan-950/30 backdrop-blur-xl">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-400/30 bg-cyan-400/10 shadow-lg shadow-cyan-500/10">
             <Loader2 className="animate-spin text-cyan-300" />
           </div>
 
@@ -430,7 +470,7 @@ export default function LearningMissionPage() {
             CareerIntel AI Tutor is preparing your lesson
           </h1>
 
-          <p className="mt-3 text-sm leading-6 text-slate-400">
+          <p className="mt-3 text-sm leading-6 text-slate-300">
             Your personalized lesson, practical task and
             verification quiz are being generated.
           </p>
@@ -441,8 +481,10 @@ export default function LearningMissionPage() {
 
   if (error && !data) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#050816] px-5 text-white">
-        <div className="w-full max-w-lg rounded-3xl border border-rose-400/20 bg-rose-400/[0.07] p-8 text-center">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#050816] px-5 text-white">
+        <TutorBackground />
+
+        <div className="relative z-10 w-full max-w-lg rounded-3xl border border-rose-400/25 bg-[#130b18]/65 p-8 text-center shadow-2xl shadow-rose-950/20 backdrop-blur-xl">
           <LockKeyhole className="mx-auto text-rose-300" />
 
           <h1 className="mt-5 text-2xl font-bold">
@@ -471,25 +513,7 @@ export default function LearningMissionPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#050816] px-4 py-8 text-white">
-      <video
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-20"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-      >
-        <source
-          src="/videos/dashboard-intelligence-background.mp4"
-          type="video/mp4"
-        />
-      </video>
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,8,22,0.76),rgba(5,8,22,0.94))]"
-      />
+      <TutorBackground />
 
       <div className="relative z-10 mx-auto max-w-5xl">
         <Link
@@ -500,7 +524,7 @@ export default function LearningMissionPage() {
           Back to dashboard
         </Link>
 
-        <header className="mt-7 overflow-hidden rounded-3xl border border-cyan-400/20 bg-[#081126]/90 p-6 shadow-2xl shadow-cyan-950/20 md:p-8">
+        <header className="mt-7 overflow-hidden rounded-3xl border border-cyan-400/20 bg-[#081126]/55 backdrop-blur-2xl ring-1 ring-white/[0.03] p-6 shadow-2xl shadow-cyan-950/20 md:p-8">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
             <div>
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-cyan-300">
@@ -580,7 +604,7 @@ export default function LearningMissionPage() {
           </div>
         </header>
 
-        <section className="mt-6 rounded-3xl border border-white/10 bg-[#081126]/90 p-6 md:p-8">
+        <section className="mt-6 rounded-3xl border border-white/10 bg-[#081126]/55 backdrop-blur-2xl ring-1 ring-white/[0.03] p-6 md:p-8">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
               <BookOpen />
@@ -647,7 +671,7 @@ export default function LearningMissionPage() {
           </button>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-white/10 bg-[#081126]/90 p-6 md:p-8">
+        <section className="mt-6 rounded-3xl border border-white/10 bg-[#081126]/55 backdrop-blur-2xl ring-1 ring-white/[0.03] p-6 md:p-8">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-400/10 text-violet-300">
               <FlaskConical />
@@ -702,7 +726,7 @@ export default function LearningMissionPage() {
           </label>
         </section>
 
-        <section className="relative mt-6 overflow-hidden rounded-3xl border border-white/10 bg-[#081126]/90 p-6 md:p-8">
+        <section className="relative mt-6 overflow-hidden rounded-3xl border border-white/10 bg-[#081126]/55 backdrop-blur-2xl ring-1 ring-white/[0.03] p-6 md:p-8">
           {!quizUnlocked && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#050816]/85 p-6 backdrop-blur-sm">
               <div className="max-w-md text-center">
@@ -823,40 +847,164 @@ export default function LearningMissionPage() {
 
           {result && (
             <div
-              className={`mt-6 rounded-2xl border p-6 ${
+              className={`mt-6 overflow-hidden rounded-3xl border p-6 backdrop-blur-2xl ${
                 result.passed
                   ? "border-emerald-400/30 bg-emerald-400/[0.09]"
                   : "border-amber-400/30 bg-amber-400/[0.08]"
               }`}
             >
-              <div className="flex items-start gap-4">
-                {result.passed ? (
-                  <Trophy className="shrink-0 text-emerald-300" />
-                ) : (
-                  <RotateCcw className="shrink-0 text-amber-300" />
-                )}
+              <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
+                <div className="flex items-start gap-4">
+                  {result.passed ? (
+                    <Trophy className="shrink-0 text-emerald-300" />
+                  ) : (
+                    <RotateCcw className="shrink-0 text-amber-300" />
+                  )}
 
-                <div>
-                  <h3 className="text-xl font-bold">
-                    {result.passed
-                      ? "Mission verified"
-                      : "Keep learning and retry"}
-                  </h3>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                      Verification report
+                    </p>
 
-                  <p className="mt-2 text-3xl font-bold">
-                    {result.score}%
+                    <h3 className="mt-2 text-xl font-bold">
+                      {result.passed
+                        ? "Mission verified"
+                        : "Keep learning and retry"}
+                    </h3>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {result.feedback}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/20 px-6 py-4 text-center">
+                  <p className="text-4xl font-black">
+                    {result.score ?? 0}%
                   </p>
 
-                  <p className="mt-3 text-sm leading-6 text-slate-300">
-                    {result.feedback}
+                  <p className="mt-1 text-xs text-slate-400">
+                    {result.correctCount ?? 0} of{" "}
+                    {result.totalQuestions ??
+                      data.content.quiz.length}{" "}
+                    correct
                   </p>
                 </div>
               </div>
 
+              {result.questionResults &&
+                result.questionResults.length > 0 && (
+                  <div className="mt-6 space-y-4">
+                    <h4 className="font-bold">
+                      Question-by-question review
+                    </h4>
+
+                    {result.questionResults.map((item) => (
+                      <article
+                        key={`${item.questionNumber}-${item.question}`}
+                        className={`rounded-2xl border p-5 ${
+                          item.correct
+                            ? "border-emerald-400/20 bg-emerald-400/[0.06]"
+                            : "border-rose-400/20 bg-rose-400/[0.06]"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <p className="font-semibold">
+                            {item.questionNumber}.{" "}
+                            {item.question}
+                          </p>
+
+                          <span
+                            className={`shrink-0 rounded-full border px-3 py-1 text-[10px] font-bold uppercase ${
+                              item.correct
+                                ? "border-emerald-400/30 text-emerald-300"
+                                : "border-rose-400/30 text-rose-300"
+                            }`}
+                          >
+                            {item.correct
+                              ? "Correct"
+                              : "Incorrect"}
+                          </span>
+                        </div>
+
+                        <div className="mt-4 grid gap-3 md:grid-cols-2">
+                          <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                              Your answer
+                            </p>
+
+                            <p
+                              className={`mt-2 text-sm ${
+                                item.correct
+                                  ? "text-emerald-200"
+                                  : "text-rose-200"
+                              }`}
+                            >
+                              {item.selectedOption}
+                            </p>
+                          </div>
+
+                          <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                              Correct answer
+                            </p>
+
+                            <p className="mt-2 text-sm text-emerald-200">
+                              {item.correctOption}
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="mt-4 text-sm leading-6 text-slate-300">
+                          <span className="font-semibold text-cyan-200">
+                            Explanation:{" "}
+                          </span>
+                          {item.explanation}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+              {!result.passed &&
+                result.improvementTips &&
+                result.improvementTips.length > 0 && (
+                  <div className="mt-6 rounded-2xl border border-amber-400/20 bg-black/20 p-5">
+                    <h4 className="font-bold text-amber-200">
+                      Your improvement plan
+                    </h4>
+
+                    <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                      {result.improvementTips.map(
+                        (tip, index) => (
+                          <li
+                            key={`${index}-${tip}`}
+                            className="flex gap-2"
+                          >
+                            <span className="text-amber-300">
+                              {index + 1}.
+                            </span>
+                            <span>{tip}</span>
+                          </li>
+                        )
+                      )}
+                    </ul>
+
+                    <button
+                      type="button"
+                      onClick={() => setResult(null)}
+                      className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-5 py-3 font-bold text-amber-100 transition hover:bg-amber-400/15"
+                    >
+                      <RotateCcw size={17} />
+                      Review answers and retry
+                    </button>
+                  </div>
+                )}
+
               {result.passed && (
                 <Link
                   href="/dashboard"
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-300 px-5 py-3 font-bold text-slate-950"
+                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-300 px-5 py-3 font-bold text-slate-950"
                 >
                   Continue to next mission
                   <ArrowRight size={18} />
@@ -867,7 +1015,7 @@ export default function LearningMissionPage() {
         </section>
 
         {data.content.sources.length > 0 && (
-          <section className="my-6 rounded-3xl border border-white/10 bg-[#081126]/90 p-6">
+          <section className="my-6 rounded-3xl border border-white/10 bg-[#081126]/55 backdrop-blur-2xl ring-1 ring-white/[0.03] p-6">
             <h2 className="font-semibold">
               Trusted learning sources
             </h2>

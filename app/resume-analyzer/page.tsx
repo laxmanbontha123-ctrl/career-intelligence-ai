@@ -1,19 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { type ChangeEvent, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
   FileSearch,
+  FileText,
   Loader2,
+  Upload,
+  X,
   Sparkles,
   Target,
 } from "lucide-react";
 
 type Analysis = {
   targetRole: string;
+  fileName?: string | null;
+  inputMethod?: "text" | "file";
   atsScore: number;
   wordCount: number;
   matchedKeywords: string[];
@@ -26,10 +31,48 @@ type Analysis = {
 
 export default function ResumeAnalyzerPage() {
   const [resumeText, setResumeText] = useState("");
+  const [resumeFile, setResumeFile] =
+    useState<File | null>(null);
   const [analysis, setAnalysis] =
     useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  function handleFileChange(
+    event: ChangeEvent<HTMLInputElement>
+  ) {
+    const file = event.target.files?.[0];
+
+    setError("");
+    setAnalysis(null);
+
+    if (!file) {
+      return;
+    }
+
+    const extension =
+      file.name.toLowerCase().split(".").pop() ?? "";
+
+    if (!["pdf", "docx"].includes(extension)) {
+      setResumeFile(null);
+      setError(
+        "Unsupported file type. Upload only a PDF or DOCX resume."
+      );
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setResumeFile(null);
+      setError("Resume file must be 5 MB or smaller.");
+      event.target.value = "";
+      return;
+    }
+
+    setResumeFile(file);
+    setResumeText("");
+    event.target.value = "";
+  }
 
   async function analyzeResume() {
     setLoading(true);
@@ -37,16 +80,25 @@ export default function ResumeAnalyzerPage() {
     setAnalysis(null);
 
     try {
-      const response = await fetch(
-        "/api/resume-analysis",
-        {
+      let response: Response;
+
+      if (resumeFile) {
+        const formData = new FormData();
+        formData.append("resumeFile", resumeFile);
+
+        response = await fetch("/api/resume-analysis", {
+          method: "POST",
+          body: formData,
+        });
+      } else {
+        response = await fetch("/api/resume-analysis", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ resumeText }),
-        }
-      );
+        });
+      }
 
       const result = await response.json();
 
@@ -119,19 +171,91 @@ export default function ResumeAnalyzerPage() {
           </h1>
 
           <p className="mt-3 max-w-3xl text-slate-400">
-            Paste your resume content to measure ATS
-            readiness, keyword alignment and improvement areas.
+            Upload your PDF or DOCX resume for automatic text
+            extraction, ATS scoring, keyword alignment and
+            role-specific improvements.
           </p>
         </header>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <input
+              id="resume-file"
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={handleFileChange}
+              className="sr-only"
+            />
+
+            <label
+              htmlFor="resume-file"
+              className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-cyan-400/30 bg-cyan-400/[0.05] px-6 py-9 text-center transition hover:border-cyan-300/60 hover:bg-cyan-400/[0.09]"
+            >
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10">
+                <Upload
+                  size={26}
+                  className="text-cyan-300"
+                />
+              </span>
+
+              <span className="mt-4 font-semibold text-white">
+                {resumeFile
+                  ? "Choose a different resume"
+                  : "Upload your resume"}
+              </span>
+
+              <span className="mt-2 text-sm text-slate-400">
+                PDF or DOCX · Maximum 5 MB
+              </span>
+            </label>
+
+            {resumeFile && (
+              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.07] p-4">
+                <FileText
+                  size={22}
+                  className="shrink-0 text-emerald-300"
+                />
+
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-emerald-100">
+                    {resumeFile.name}
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    {(resumeFile.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  aria-label="Remove selected resume"
+                  onClick={() => {
+                    setResumeFile(null);
+                    setAnalysis(null);
+                    setError("");
+                  }}
+                  className="rounded-lg border border-white/10 p-2 text-slate-400 transition hover:border-rose-400/30 hover:text-rose-300"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+
+            <div className="my-5 flex items-center gap-3">
+              <div className="h-px flex-1 bg-white/10" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Or paste resume text
+              </span>
+              <div className="h-px flex-1 bg-white/10" />
+            </div>
+
             <label className="text-sm font-semibold text-slate-200">
               Resume content
             </label>
 
             <textarea
               value={resumeText}
+              disabled={Boolean(resumeFile)}
               onChange={(event) =>
                 setResumeText(event.target.value)
               }
@@ -154,7 +278,7 @@ export default function ResumeAnalyzerPage() {
             <button
               type="button"
               onClick={analyzeResume}
-              disabled={loading || resumeText.length < 150}
+              disabled={loading || (!resumeFile && resumeText.length < 150)}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-500 px-5 py-3.5 font-semibold text-slate-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
@@ -167,8 +291,12 @@ export default function ResumeAnalyzerPage() {
               )}
 
               {loading
-                ? "Analyzing resume..."
-                : "Analyze My Resume"}
+                ? resumeFile
+                  ? "Reading and analyzing resume..."
+                  : "Analyzing resume..."
+                : resumeFile
+                  ? "Analyze Uploaded Resume"
+                  : "Analyze My Resume"}
             </button>
           </div>
 
@@ -223,6 +351,12 @@ export default function ResumeAnalyzerPage() {
                   <p className="mt-3 text-sm text-cyan-200">
                     Target: {analysis.targetRole}
                   </p>
+
+                  {analysis.fileName && (
+                    <p className="mt-1 truncate text-xs text-slate-500">
+                      Resume: {analysis.fileName}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">

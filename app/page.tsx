@@ -44,7 +44,7 @@ const roadmap = [
 
 export default function Home() {
   return (
-    <main>
+    <main className="landing-page">
       <section className="hero">
         <video
           aria-hidden="true"
