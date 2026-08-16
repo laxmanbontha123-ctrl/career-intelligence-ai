@@ -58,7 +58,7 @@ export async function GET() {
       success: true,
       database: database[0]?.db ?? null,
       host: database[0]?.host ?? null,
-      port: database[0]?.port ?? null,
+      port: database[0]?.port ? Number(database[0].port) : null,
       tables: tables.map((row) => row.TABLE_NAME),
       avatarDataUrlExists: columns.length > 0,
       recentMigrations: migrations,
@@ -78,4 +78,5 @@ export async function GET() {
     );
   }
 }
+
 
