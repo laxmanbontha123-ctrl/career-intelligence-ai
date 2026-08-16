@@ -1,9 +1,9 @@
 ﻿import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/session";
 
-const DEMO_PHONE = "+919999999999";
+const DEMO_PHONE = "9999999999";
 const DEMO_OTP = "123456";
+const DEMO_USER_ID = 1;
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
         ? body.otp.trim()
         : "";
 
-    if (phone !== "9999999999" || otp !== DEMO_OTP) {
+    if (phone !== DEMO_PHONE || otp !== DEMO_OTP) {
       return NextResponse.json(
         {
           success: false,
@@ -29,31 +29,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = await prisma.user.upsert({
-      where: {
-        authUid: "demo-phone-user",
-      },
-      update: {
-        phone: DEMO_PHONE,
-        authMethod: "phone",
-      },
-      create: {
-        authUid: "demo-phone-user",
-        name: "Demo Learner",
-        email: null,
-        phone: DEMO_PHONE,
-        role: "student",
-        authMethod: "phone",
-        profileCompleted: true,
-        targetRole: "Cloud / DevOps Engineer",
-        readinessScore: 33,
-      },
-    });
-
     await createSession({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
+      userId: DEMO_USER_ID,
+      email: null,
+      role: "student",
     });
 
     return NextResponse.json({
