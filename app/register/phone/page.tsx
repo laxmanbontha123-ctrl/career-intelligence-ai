@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -102,6 +102,15 @@ export default function PhoneRegisterPage() {
     try {
       setLoading(true);
 
+      if (cleanPhone === "9999999999") {
+        setOtpSent(true);
+        setMessage(
+          "Demo mode: use OTP 123456 to continue."
+        );
+        setLoading(false);
+        return;
+      }
+
       // DEVELOPMENT ONLY:
       // Firebase fictional/test numbers can use mock reCAPTCHA.
       if (
@@ -165,6 +174,37 @@ export default function PhoneRegisterPage() {
 
     try {
       setLoading(true);
+
+      if (
+        phone.replace(/\D/g, "") === "9999999999" &&
+        otp === "123456"
+      ) {
+        const demoResponse = await fetch(
+          "/api/auth/demo-login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              phone,
+              otp,
+            }),
+          }
+        );
+
+        const demoResult = await demoResponse.json();
+
+        if (!demoResponse.ok || !demoResult.success) {
+          throw new Error(
+            demoResult.message ||
+              "Unable to complete demo login."
+          );
+        }
+
+        router.push("/dashboard");
+        return;
+      }
 
       const credential =
         await confirmationRef.current.confirm(otp);
