@@ -51,7 +51,7 @@ export default function OpportunityPreparationPanel({
   onClose,
 }: Props) {
   return (
-    <section className="mb-8 rounded-3xl border border-cyan-300/15 bg-cyan-300/[0.05] p-6 shadow-2xl backdrop-blur-2xl">
+    <section className="mb-8 rounded-3xl border border-cyan-300/15 bg-black/20 p-6 shadow-2xl backdrop-blur-md">
       <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-200/70">
@@ -68,7 +68,7 @@ export default function OpportunityPreparationPanel({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/10 px-5 py-4 text-center">
+          <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.07] px-5 py-4 text-center backdrop-blur-md">
             <p className="text-xs text-white/50">
               Current readiness
             </p>
@@ -91,7 +91,7 @@ export default function OpportunityPreparationPanel({
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.04] p-5">
+        <div className="rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.03] p-5 backdrop-blur-md">
           <p className="text-sm font-medium text-emerald-200">
             Skills you already have
           </p>
@@ -114,7 +114,7 @@ export default function OpportunityPreparationPanel({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-amber-300/10 bg-amber-300/[0.04] p-5">
+        <div className="rounded-2xl border border-amber-300/10 bg-amber-300/[0.03] p-5 backdrop-blur-md">
           <p className="text-sm font-medium text-amber-200">
             Priority skill gaps
           </p>
@@ -124,7 +124,7 @@ export default function OpportunityPreparationPanel({
               data.gaps.slice(0, 4).map((skill) => (
                 <div
                   key={skill.name}
-                  className="flex items-center justify-between rounded-xl bg-white/[0.03] px-3 py-2"
+                  className="flex items-center justify-between rounded-xl bg-white/[0.02] px-3 py-2"
                 >
                   <span className="text-sm text-white/80">
                     {skill.name}
@@ -156,12 +156,12 @@ export default function OpportunityPreparationPanel({
         </div>
 
         {loading ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/50">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-sm text-white/50 backdrop-blur-md">
             Building your preparation plan...
           </div>
         ) : data.preparationSteps.length === 0 ? (
-          <div className="rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.04] p-5 text-sm text-emerald-200">
-            You're already aligned with the listed skill
+          <div className="rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.03] p-5 text-sm text-emerald-200 backdrop-blur-md">
+            You&apos;re already aligned with the listed skill
             requirements for this opportunity.
           </div>
         ) : (
@@ -169,7 +169,7 @@ export default function OpportunityPreparationPanel({
             {data.preparationSteps.map((step) => (
               <div
                 key={step.skill}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+                className="rounded-2xl border border-white/10 bg-black/15 p-5 backdrop-blur-md"
               >
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -196,7 +196,7 @@ export default function OpportunityPreparationPanel({
                   {step.stages.map((stage, index) => (
                     <div
                       key={stage.key}
-                      className="flex gap-4 rounded-2xl border border-white/10 bg-black/10 p-4"
+                      className="flex gap-4 rounded-2xl border border-white/10 bg-black/10 p-4 backdrop-blur-md"
                     >
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cyan-300/15 bg-cyan-300/10 text-xs font-semibold text-cyan-200">
                         {index + 1}
