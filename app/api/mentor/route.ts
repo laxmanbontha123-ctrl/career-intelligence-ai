@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getRequiredSkills } from "@/lib/role-skills";
+import { retrieveVerifiedKnowledge } from "@/lib/verified-knowledge";
 
 export async function GET() {
   const session = await getSession();
@@ -133,6 +134,23 @@ export async function POST(request: Request) {
 
     const biggestGap = skillAnalysis[0];
 
+    const verifiedKnowledge =
+      retrieveVerifiedKnowledge(question, 3);
+
+    const verifiedContext =
+      verifiedKnowledge.length > 0
+        ? verifiedKnowledge
+            .map(
+              (item: {
+                source: string;
+                title: string;
+                content: string;
+              }) =>
+                `[${item.source}] ${item.title}: ${item.content}`
+            )
+            .join("\n\n")
+        : "No directly matching verified knowledge was retrieved.";
+
     const latestResume = user.resumeAnalyses[0];
 
     const recentMessages =
@@ -171,6 +189,14 @@ ${skillContext}
 
 HIGHEST NUMERICAL SKILL GAP:
 ${biggestGap?.name || "No active gap"} with a gap of ${biggestGap?.gap || 0} levels.
+
+VERIFIED KNOWLEDGE RETRIEVED FOR THIS QUESTION:
+${verifiedContext}
+
+GROUNDING RULES:
+- Prefer the verified knowledge above when answering factual career, skill, learning, resume, interview or opportunity questions.
+- Do not invent organizational policies, courses, certifications, job openings or deadlines.
+- If the retrieved knowledge does not contain enough evidence, clearly say that the information is not available in the verified knowledge base and provide general guidance separately.
 
 RULES:
 - Personalize every answer using the supplied student context.
@@ -310,3 +336,4 @@ RULES:
     );
   }
 }
+
