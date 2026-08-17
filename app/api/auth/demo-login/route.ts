@@ -1,13 +1,37 @@
 ﻿import { NextResponse } from "next/server";
 import { createSession } from "@/lib/session";
 
-const DEMO_PHONE = "9999999999";
-const DEMO_OTP = "123456";
-const DEMO_USER_ID = 1;
+type DemoRole = "student" | "admin";
+
+type DemoAccount = {
+  phone: string;
+  otp: string;
+  userId: number;
+  role: DemoRole;
+};
+
+const DEMO_ACCOUNTS: Record<DemoRole, DemoAccount> = {
+  student: {
+    phone: "9999999999",
+    otp: "123456",
+    userId: 1,
+    role: "student",
+  },
+  admin: {
+    phone: "8888888888",
+    otp: "654321",
+    userId: 4,
+    role: "admin",
+  },
+};
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as {
+      phone?: unknown;
+      otp?: unknown;
+      requestedRole?: unknown;
+    };
 
     const phone =
       typeof body.phone === "string"
@@ -19,7 +43,25 @@ export async function POST(request: Request) {
         ? body.otp.trim()
         : "";
 
-    if (phone !== DEMO_PHONE || otp !== DEMO_OTP) {
+    let requestedRole: DemoRole;
+
+    if (body.requestedRole === "admin") {
+      requestedRole = "admin";
+    } else if (body.requestedRole === "student") {
+      requestedRole = "student";
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Please select a valid workspace.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const demo = DEMO_ACCOUNTS[requestedRole];
+
+    if (phone !== demo.phone || otp !== demo.otp) {
       return NextResponse.json(
         {
           success: false,
@@ -30,13 +72,18 @@ export async function POST(request: Request) {
     }
 
     await createSession({
-      userId: DEMO_USER_ID,
+      userId: demo.userId,
       email: null,
-      role: "student",
+      role: demo.role,
     });
 
     return NextResponse.json({
       success: true,
+      role: demo.role,
+      redirect:
+        demo.role === "admin"
+          ? "/admin"
+          : "/dashboard",
       message: "Demo login successful.",
     });
   } catch (error) {

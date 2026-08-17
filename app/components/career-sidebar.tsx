@@ -159,6 +159,8 @@ export default function CareerSidebar() {
     pathname === "/profile" ||
     pathname.startsWith("/profile/");
 
+  const adminMode = pathname.startsWith("/admin");
+
   const settingsActive =
     pathname === "/settings" ||
     pathname.startsWith("/settings/");
@@ -228,18 +230,37 @@ export default function CareerSidebar() {
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5">
-          <div className="mb-5 rounded-2xl border border-cyan-400/15 bg-cyan-400/[0.06] p-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-cyan-300">
+          <div className={`mb-5 rounded-2xl border p-4 ${
+            adminMode
+              ? "border-violet-400/15 bg-violet-400/[0.06]"
+              : "border-cyan-400/15 bg-cyan-400/[0.06]"
+          }`}>
+            <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] ${
+              adminMode ? "text-violet-300" : "text-cyan-300"
+            }`}>
               <BrainCircuit size={15} />
-              Student command center
+              {adminMode ? "Administrator intelligence" : "Student command center"}
             </div>
 
             <p className="mt-2 text-xs leading-5 text-slate-400">
-              Learn, practice, verify and become
-              career-ready.
+              {adminMode
+                ? "Monitor learner outcomes, engagement and career intelligence."
+                : "Learn, practice, verify and become career-ready."}
             </p>
           </div>
 
+          {adminMode ? (
+            <nav className="space-y-2">
+              <Link
+                href="/admin"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 rounded-xl border border-violet-400/25 bg-violet-400/10 px-3 py-3 text-sm font-semibold text-violet-200"
+              >
+                <BrainCircuit size={18} className="text-violet-300" />
+                Administrator Intelligence
+              </Link>
+            </nav>
+          ) : (
           <nav className="space-y-6">
             {navigationGroups.map((group) => (
               <div key={group.label}>
@@ -289,6 +310,7 @@ export default function CareerSidebar() {
               </div>
             ))}
           </nav>
+          )}
         </div>
 
         <div className="shrink-0 border-t border-white/10 bg-[#050b1c] p-4">
@@ -340,3 +362,4 @@ export default function CareerSidebar() {
     </>
   );
 }
+

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import {
   ConfirmationResult,
@@ -22,6 +23,11 @@ import { auth } from "@/lib/firebase";
 
 export default function PhoneRegisterPage() {
   const router = useRouter();
+  const requestedRole =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("role") === "admin"
+      ? "admin"
+      : "student";
 
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -102,10 +108,15 @@ export default function PhoneRegisterPage() {
     try {
       setLoading(true);
 
-      if (cleanPhone === "9999999999") {
+      if (
+        (requestedRole === "student" && cleanPhone === "9999999999") ||
+        (requestedRole === "admin" && cleanPhone === "8888888888")
+      ) {
         setOtpSent(true);
         setMessage(
-          "Demo mode: use OTP 123456 to continue."
+          requestedRole === "admin"
+            ? "Demo mode: use OTP 654321 to continue."
+            : "Demo mode: use OTP 123456 to continue."
         );
         setLoading(false);
         return;
@@ -171,8 +182,12 @@ export default function PhoneRegisterPage() {
       setLoading(true);
 
       if (
-        phone.replace(/\D/g, "") === "9999999999" &&
-        otp === "123456"
+        (requestedRole === "student" &&
+          phone.replace(/\D/g, "") === "9999999999" &&
+          otp === "123456") ||
+        (requestedRole === "admin" &&
+          phone.replace(/\D/g, "") === "8888888888" &&
+          otp === "654321")
       ) {
         const demoResponse = await fetch(
           "/api/auth/demo-login",
@@ -184,6 +199,7 @@ export default function PhoneRegisterPage() {
             body: JSON.stringify({
               phone,
               otp,
+              requestedRole,
             }),
           }
         );
@@ -197,7 +213,7 @@ export default function PhoneRegisterPage() {
           );
         }
 
-        router.push("/dashboard");
+        router.push(requestedRole === "admin" ? "/admin" : "/dashboard");
         return;
       }
 
@@ -233,7 +249,7 @@ export default function PhoneRegisterPage() {
 
       resetRecaptcha();
 
-      router.push("/dashboard");
+      router.push(requestedRole === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
       console.error(
         "Phone OTP verification error:",
@@ -463,4 +479,9 @@ export default function PhoneRegisterPage() {
     </main>
   );
 }
+
+
+
+
+
 

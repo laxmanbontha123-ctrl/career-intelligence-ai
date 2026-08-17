@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { adminAuth } from "@/lib/firebase-admin";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/session";
@@ -7,7 +7,8 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const { idToken } = await request.json();
+    const { idToken, requestedRole } = await request.json();
+    const desiredRole = requestedRole === "admin" ? "admin" : "student";
 
     if (!idToken || typeof idToken !== "string") {
       return NextResponse.json(
@@ -69,6 +70,17 @@ export async function POST(request: Request) {
     }
 
     if (user) {
+      if (user.role !== desiredRole) {
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              "This account is not authorized for the selected workspace.",
+          },
+          { status: 403 }
+        );
+      }
+
       user = await prisma.user.update({
         where: {
           id: user.id,
@@ -82,6 +94,17 @@ export async function POST(request: Request) {
         },
       });
     } else {
+      if (desiredRole === "admin") {
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              "Administrator access must be provisioned by the platform.",
+          },
+          { status: 403 }
+        );
+      }
+
       user = await prisma.user.create({
         data: {
           authUid,
@@ -104,6 +127,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
+      role: user.role,
       message: "Firebase authentication verified successfully.",
     });
   } catch (error) {
